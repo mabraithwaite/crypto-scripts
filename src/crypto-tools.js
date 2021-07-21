@@ -1,14 +1,14 @@
 async function CRYPTODEXPRICE(token1, token2, exchange) {
-  Logger.log('token1: ' + token1);
-  Logger.log('token2: ' + token2);
-  Logger.log('exchange: ' + exchange);
+  console.log('token1:', token1);
+  console.log('token2:', token2);
+  console.log('exchange:', exchange);
   const cacheId = getStringHash_(JSON.stringify([token1, token2, exchange, 'dexprice']));
   const cached = cacheGet_(cacheId);
   if (cached != null) {
-    Logger.log('Using cached value');
+    console.log('Using cached value');
     return JSON.parse(cached);
   }
-  Logger.log('Not using cached value');
+  console.log('Not using cached value');
 
   commonSleep_();
   const content = await fetchCryptoToolsData_(`DEXPRICE2/${token1}/${token2}/${exchange}`);

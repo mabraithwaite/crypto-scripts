@@ -17,17 +17,18 @@ async function fetchData_(fetchOptions) {
   while (retry) {
     retry = false;
     const res = await UrlFetchApp.fetch(fetchUrl, urlFetchOptions);
-    Logger.log('response code: ' + res.getResponseCode());
+    console.log('response code:', res.getResponseCode());
     if (res.getResponseCode() >= 200 && res.getResponseCode() < 300) {
       const content = res.getContentText();
+      console.log('content:', content);
       return content && JSON.parse(content);
     } else if (retryStrategy && retryStrategy(res, attempt)) {
-      Logger.log('retrying...total attempts: ' + attempt);
+      console.log('retrying...total attempts:', attempt);
       retry = true;
       attempt++;
       Utilities.sleep(attempt * 1000);
     } else {
-      Logger.log('throwing response...total attempts: ' + attempt);
+      console.log('throwing response...total attempts:', attempt);
       throw res;
     }
   }
@@ -64,7 +65,7 @@ function getDataPathItem_(data, paramPath) {
       data = data[param];
     }
   } catch (e) {
-    Logger.log('Failure getting path item from data. keyPath: ' + JSON.stringify(paramPath));
+    console.log('Failure getting path item from data. keyPath:', paramPath);
     return undefined;
   }
   return data;

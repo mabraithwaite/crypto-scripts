@@ -1,6 +1,6 @@
 async function LP_STAKING(address, parameters = []) {
-  Logger.log('address: ' + address);
-  Logger.log('parameters: ' + parameters);
+  console.log('address:', address);
+  console.log('parameters:', parameters);
   if (!Array.isArray(parameters)) {
     parameters = [[parameters]];
   }
@@ -8,11 +8,11 @@ async function LP_STAKING(address, parameters = []) {
   const hashValue = getStringHash_(JSON.stringify(parameters) + '_' + address);
   const cachedValue = cacheGet_(hashValue);
   if (cachedValue) {
-    Logger.log('using cached value');
+    console.log('using cached value');
     return JSON.parse(cachedValue);
   }
 
-  Logger.log('not using cached value');
+  console.log('not using cached value');
   if (parameters.length === 0) {
     return [];
   }
