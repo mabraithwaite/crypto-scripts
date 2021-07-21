@@ -28,6 +28,6 @@ async function LP_STAKING(address, parameters = []) {
   const result = parameters.map((keys) =>
     keys.map(mapParmKeyToParamPath_).map((keyPath) => getDataPathItem_(data, keyPath))
   );
-  cache.put(hashValue, JSON.stringify(result));
+  cachePut_(hashValue, JSON.stringify(result));
   return result;
 }

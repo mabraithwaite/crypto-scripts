@@ -41,12 +41,8 @@ function cacheGet_(cacheId) {
   return CacheService.getScriptCache().get(cacheId);
 }
 
-function cachePut_(key, value, expInSec) {
-  if (expInSec != null) {
-    CacheService.getScriptCache().put(key, value, expInSec);
-  } else {
-    CacheService.getScriptCache().put(key, value);
-  }
+function cachePut_(key, value) {
+  CacheService.getScriptCache().put(key, value, EXPIRATION_IN_SECONDS);
 }
 
 function mapObjectToUrlParams_(obj) {
