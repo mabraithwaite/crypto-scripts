@@ -10,7 +10,9 @@
     "clasp-logout": "clasp logout",
     "clasp-open": "clasp open",
     "clasp-push": "clasp push",
-    "clasp-set-new-script-id": "rm -f .clasp.json && cp .clasp.json_bak .clasp.json && clasp setting scriptId"
+    "clasp-set-new-script-id": "rm -f .clasp.json && cp .clasp.json_bak .clasp.json && clasp setting scriptId",
+    "format:test": "prettier **/*.js --list-different",
+    "format:write": "prettier **/*.js --write"
   },
   "repository": {
     "type": "git",
