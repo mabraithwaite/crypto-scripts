@@ -4,7 +4,13 @@
   "description": "Scripts used to monitor your crypto portfolio and the crypto market",
   "private": true,
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "clasp": "clasp",
+    "clasp-create-spreadsheet": "rm -f .clasp.json && clasp create --title \"crypto-sheets\" --type sheets && clasp push && clasp open",
+    "clasp-login": "clasp login",
+    "clasp-logout": "clasp logout",
+    "clasp-open": "clasp open",
+    "clasp-push": "clasp push",
+    "clasp-set-new-script-id": "rm -f .clasp.json && cp .clasp.json_bak .clasp.json && clasp setting scriptId"
   },
   "repository": {
     "type": "git",
@@ -14,5 +20,11 @@
   "bugs": {
     "url": "https://github.com/mabraithwaite/crypto-scripts/issues"
   },
-  "homepage": "https://github.com/mabraithwaite/crypto-scripts#readme"
+  "homepage": "https://github.com/mabraithwaite/crypto-scripts#readme",
+  "dependencies": {
+    "@google/clasp": "^2.4.0"
+  },
+  "devDependencies": {
+    "@types/google-apps-script": "^1.0.36"
+  }
 }
