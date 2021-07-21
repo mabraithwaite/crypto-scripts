@@ -1,4 +1,4 @@
-async function GECKO_ALL_DATA(ticker, parameters, byTicker = true) {
+async function GECKO_DATA(ticker, parameters, byTicker = true) {
   Logger.log('ticker: ' + ticker);
   Logger.log('parameters: ' + parameters);
   Logger.log('byTicker: ' + byTicker);
