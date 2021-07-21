@@ -9,17 +9,15 @@ async function GECKO_ALL_DATA(ticker, parameters, byTicker = true) {
   const hashValue = getStringHash_(JSON.stringify(parameters) + '_' + ticker);
   const cachedValue = cacheGet_(hashValue);
   if (cachedValue) {
-    Logger.log('using cached value');
+    Logger.log('Using cached value');
     return JSON.parse(cachedValue);
   }
-  Logger.log('not using cached value');
+  Logger.log('Not using cached value');
 
   commonSleep_();
   const coinId = byTicker ? await fetchCoinId_(ticker) : ticker.toLowerCase().trim();
 
-  const geckoData = await fetchCoinGeckoData_({
-    url: `https://api.coingecko.com/api/v3/coins/${coinId}`
-  });
+  const geckoData = await fetchCoinGeckoData_(`coins/${coinId}`);
   const result = parameters.map((parameterList) =>
     parameterList
       .map(mapParmKeyToParamPath_)
@@ -29,8 +27,14 @@ async function GECKO_ALL_DATA(ticker, parameters, byTicker = true) {
   return result;
 }
 
-const fetchCoinGeckoData_ = async (fetchOptions) => {
-  return await fetchData_({ retryStrategy: retryOnStatusCodes_(423, 429), ...fetchOptions });
+const fetchCoinGeckoData_ = async (path, params) => {
+  const prefix = CG_PRO_API_KEY ? 'pro-api' : 'api';
+  const additionalParams = CG_PRO_API_KEY ? { x_cg_pro_api_key: CG_PRO_API_KEY } : {};
+  return await fetchData_({
+    url: `https://${prefix}.coingecko.com/api/v3/${path}`,
+    params: { ...params, ...additionalParams },
+    retryStrategy: retryOnStatusCodes_(423, 429)
+  });
 };
 
 const fetchCoinId_ = async (symbol) => {
@@ -38,11 +42,8 @@ const fetchCoinId_ = async (symbol) => {
   if (CoinTickerToCoinIdCache[symbol]) {
     return CoinTickerToCoinIdCache[symbol];
   }
+  const res = await fetchCoinGeckoData_('search', { locale: 'fr', img_path_only: '1' });
   symbol = symbol.toUpperCase();
-  const res = await fetchCoinGeckoData_({
-    url: 'https://api.coingecko.com/api/v3/search',
-    params: { locale: 'fr', img_path_only: '1' }
-  });
   const coin = res.coins.find((coin) => coin.symbol === symbol);
   return coin?.id?.toString();
 };
