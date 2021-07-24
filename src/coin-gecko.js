@@ -20,7 +20,8 @@ async function GECKOPRICE(tickerArray, currencyArray) {
   const { pairMatrix, coinIdSet, currencySet } = await getPairMatrixInfo_(
     tickerArray,
     currencyArray,
-    true
+    true,
+    false
   );
 
   const cacheId = getStringHash_(
@@ -65,11 +66,9 @@ async function GECKOPRICEBYNAME(coinIdArray, currencyArray) {
   const { pairMatrix, coinIdSet, currencySet } = await getPairMatrixInfo_(
     coinIdArray,
     currencyArray,
+    false,
     false
   );
-  console.log('pairMatrix:', pairMatrix);
-  console.log('coinIdSet:', coinIdSet);
-  console.log('currencySet:', currencySet);
 
   const cacheId = getStringHash_(
     JSON.stringify(coinIdArray || []) + JSON.stringify(currencyArray || []) + 'GECKOPRICEBYNAME'
@@ -114,7 +113,7 @@ async function GECKOVOLUME(tickerArray, currency) {
     tickerArray,
     currency,
     true,
-    (marketData) => marketData.total_volume,
+    (marketData) => numberOrEmptyStr_(marketData.total_volume),
     'GECKOVOLUME'
   );
 }
@@ -140,7 +139,7 @@ async function GECKOCAP(tickerArray, currency) {
     tickerArray,
     currency,
     true,
-    (marketData) => marketData.market_cap,
+    (marketData) => numberOrEmptyStr_(marketData.market_cap),
     'GECKOCAP'
   );
 }
@@ -164,7 +163,7 @@ async function GECKOCAPDILUTED(tickerArray, currency) {
     tickerArray,
     currency,
     true,
-    (marketData) => marketData.fully_diluted_valuation,
+    (marketData) => numberOrEmptyStr_(marketData.fully_diluted_valuation),
     'GECKOCAPDILUTED'
   );
 }
@@ -188,7 +187,10 @@ async function GECKO24HPRICECHANGE(tickerArray, currency) {
     tickerArray,
     currency,
     true,
-    (marketData) => parseFloat(marketData.price_change_percentage_24h) / 100,
+    (marketData) =>
+      typeof marketData.price_change_percentage_24h === 'number'
+        ? marketData.price_change_percentage_24h / 100
+        : '',
     'GECKO24HPRICECHANGE'
   );
 }
@@ -212,7 +214,7 @@ async function GECKORANK(tickerArray, currency) {
     tickerArray,
     currency,
     true,
-    (marketData) => marketData.market_cap_rank,
+    (marketData) => numberOrEmptyStr_(marketData.market_cap_rank),
     'GECKORANK'
   );
 }
@@ -237,7 +239,7 @@ async function GECKOATH(tickerArray, currency) {
     tickerArray,
     currency,
     true,
-    (marketData) => marketData.ath,
+    (marketData) => numberOrEmptyStr_(marketData.ath),
     'GECKOATH'
   );
 }
@@ -263,7 +265,7 @@ async function GECKOATL(tickerArray, currency) {
     tickerArray,
     currency,
     true,
-    (marketData) => marketData.atl,
+    (marketData) => numberOrEmptyStr_(marketData.atl),
     'GECKOATL'
   );
 }
@@ -289,7 +291,7 @@ async function GECKO24HIGH(tickerArray, currency) {
     tickerArray,
     currency,
     true,
-    (marketData) => marketData.high_24h,
+    (marketData) => numberOrEmptyStr_(marketData.high_24h),
     'GECKO24HIGH'
   );
 }
@@ -315,7 +317,7 @@ async function GECKO24LOW(tickerArray, currency) {
     tickerArray,
     currency,
     true,
-    (marketData) => marketData.low_24h,
+    (marketData) => numberOrEmptyStr_(marketData.low_24h),
     'GECKO24LOW'
   );
 }
@@ -343,7 +345,8 @@ async function GECKOCAPBYNAME(tickerArray, currency, diluted = false) {
     tickerArray,
     currency,
     false,
-    (marketData) => +parseFloat(marketData[diluted ? 'fully_diluted_valuation' : 'market_cap']),
+    (marketData) =>
+      numberOrEmptyStr_(marketData[diluted ? 'fully_diluted_valuation' : 'market_cap']),
     'GECKOCAPBYNAME' + (diluted ? 'diluted' : '')
   );
 }
@@ -367,7 +370,7 @@ async function GECKOVOLUMEBYNAME(tickerArray, currency) {
     tickerArray,
     currency,
     false,
-    (marketData) => +parseFloat(marketData.total_volume),
+    (marketData) => numberOrEmptyStr_(marketData.total_volume),
     'GECKOVOLUMEBYNAME'
   );
 }
@@ -420,35 +423,6 @@ async function GECKOLOGOBYNAME(tickerArray) {
   );
 }
 
-const getCoinsMarketsData_ = async (tickerOrIdArray, currency, byTicker, dataMapper, tag) => {
-  console.log('tickerArray:', tickerOrIdArray);
-  console.log('currency:', currency);
-  const { pairMatrix, coinIdSet, currencySet } = await getPairMatrixInfo_(
-    tickerOrIdArray,
-    currency,
-    byTicker
-  );
-
-  const cacheId = getStringHash_(JSON.stringify(tickerOrIdArray || []) + currency + tag);
-  const cached = cacheGet_(cacheId);
-  if (cached) {
-    console.log('using cached data....');
-    return JSON.parse(cached);
-  }
-
-  console.log('fetching data....');
-  commonSleep_();
-  const geckoData = await fetchCoinGeckoData_('coins/markets', {
-    ids: [...coinIdSet].join(','),
-    vs_currency: [...currencySet].join(',')
-  });
-  const dict = {};
-  for (const marketData of geckoData) {
-    dict[marketData.id] = dataMapper(marketData);
-  }
-  return pairMatrix.map((pairs) => pairs.map((pair) => (pair.id ? dict[pair.id] : '')));
-};
-
 /** GECKOHIST
  * Imports CoinGecko's cryptocurrency price change, volume change and market cap change into Google spreadsheets.
  * For example:
@@ -489,13 +463,15 @@ async function GECKOHIST(ticker, ticker2, type, date, byTicker = true) {
   const cacheId = getStringHash_(ticker + ticker2 + type + date + 'hist');
   const cached = cacheGet_(cacheId);
   if (cached != null) {
+    console.log('using cached data....');
     return JSON.parse(cached);
   }
+  console.log('fetching data....');
 
   commonSleep_();
   const coinId = byTicker ? await fetchCoinId_(ticker) : ticker.toLowerCase();
-  const geckoData = fetchCoinGeckoData_(`coins/${coinId}/history`, { date, localization: 'false' });
-  const data = +parseFloat(geckoData.market_data[dataKey][ticker2]).toFixed(4);
+  const geckoData = await fetchCoinGeckoData_(`coins/${coinId}/history`, { date, localization: 'false' });
+  const data = geckoData.market_data[dataKey][ticker2].toFixed(4);
   cachePut_(cacheId, JSON.stringify(data), expirationInSeconds);
   return data;
 }
@@ -524,6 +500,11 @@ async function GECKOCHANGEBYNAME(id_coin, ticker2, type, days) {
   type = type.toLowerCase();
   days = days.toString();
 
+  console.log('coinId:', coinId);
+  console.log('ticker2:', ticker2);
+  console.log('type:', type);
+  console.log('days:', days);
+
   const dataKey =
     type === 'price'
       ? 'prices'
@@ -541,16 +522,20 @@ async function GECKOCHANGEBYNAME(id_coin, ticker2, type, days) {
   const cacheId = getStringHash_(coinId + ticker2 + type + days + 'changebyname');
   const cached = cacheGet_(cacheId);
   if (cached != null) {
+    console.log('using cached data....');
     return JSON.parse(cached);
   }
+  console.log('fetching data....');
+  
   commonSleep_();
-  const geckoData = fetchCoinGeckoData_(`coins/${coinId}/market_chart`, {
+  const geckoData = await fetchCoinGeckoData_(`coins/${coinId}/market_chart`, {
     vs_currency: ticker2,
     days
   });
 
-  const val = +parseFloat(
-    geckoData[dataKey][geckoData[dataKey].length - 1][1] / geckoData[dataKey][0][1] - 1
+  const val = (
+    geckoData[dataKey][geckoData[dataKey].length - 1][1] / geckoData[dataKey][0][1] -
+    1
   ).toFixed(4);
 
   cachePut_(cacheId, JSON.stringify(val), expirationInSeconds);
@@ -587,10 +572,10 @@ async function GECKO_ID_DATA(ticker, parameters, byTicker = true) {
   const cacheId = getStringHash_(JSON.stringify(parameters) + '_' + ticker);
   const cachedValue = cacheGet_(cacheId);
   if (cachedValue) {
-    console.log('Using cached value');
+    console.log('using cached data....');
     return JSON.parse(cachedValue);
   }
-  console.log('Not using cached value');
+  console.log('fetching data....');
 
   commonSleep_();
   const coinId = byTicker ? await fetchCoinId_(ticker) : ticker.toLowerCase().trim();
@@ -624,10 +609,15 @@ async function GECKO_ID_DATA(ticker, parameters, byTicker = true) {
  * @return a one-dimensional array containing the 7D%  price change on BTC (week price % change).
  **/
 async function GECKOCHANGE(ticker, ticker2, type, days) {
-  ticker = ticker.toUpperCase();
+  ticker = ticker.toLowerCase();
   ticker2 = ticker2.toLowerCase();
   type = type.toLowerCase();
   days = days.toString();
+
+  console.log('ticker:', ticker);
+  console.log('ticker2:', ticker2);
+  console.log('type:', type);
+  console.log('days:', days);
 
   const dataKey =
     type === 'price'
@@ -646,17 +636,20 @@ async function GECKOCHANGE(ticker, ticker2, type, days) {
   const cacheId = getStringHash_(ticker + ticker2 + type + days + 'change');
   const cached = cacheGet_(cacheId);
   if (cached != null) {
+    console.log('using cached data....');
     return JSON.parse(cached);
   }
+  console.log('fetching data....');
 
   commonSleep_();
-  const coinId = fetchCoinId_(ticker);
-  const geckoData = fetchCoinGeckoData_(`coins/${coinId}/market_chart`, {
+  const coinId = await fetchCoinId_(ticker);
+  const geckoData = await fetchCoinGeckoData_(`coins/${coinId}/market_chart`, {
     vs_currency: ticker2,
     days
   });
-  const data = parseFloat(
-    geckoData[dataKey][geckoData[dataKey].length - 1][1] / geckoData[dataKey][0][1] - 1
+  const data = (
+    geckoData[dataKey][geckoData[dataKey].length - 1][1] / geckoData[dataKey][0][1] -
+    1
   ).toFixed(4);
   cachePut_(cacheId, JSON.stringify(data));
   return data;
@@ -685,10 +678,15 @@ async function GECKOCHANGE(ticker, ticker2, type, days) {
  * @return a one-dimensional array containing the price/volume/cap to be fed into sparkline
  **/
 async function GECKOCHART(ticker, ticker2, type, days, interval = 'daily') {
-  ticker = ticker.toUpperCase();
+  ticker = ticker.toLowerCase();
   ticker2 = ticker2.toLowerCase();
   type = type.toLowerCase();
   days = days.toString();
+
+  console.log('ticker:', ticker);
+  console.log('ticker2:', ticker2);
+  console.log('type:', type);
+  console.log('days:', days);
 
   const dataKey =
     type === 'price'
@@ -707,11 +705,14 @@ async function GECKOCHART(ticker, ticker2, type, days, interval = 'daily') {
   const cacheId = getStringHash_(ticker + ticker2 + type + days + 'chart');
   const cached = cacheGet_(cacheId);
   if (cached != null) {
+    console.log('using cached data....');
     return JSON.parse(cached);
   }
+  console.log('fetching data....');
+
   commonSleep_();
-  const coinId = fetchCoinId_(ticker);
-  const geckoData = fetchCoinGeckoData_(`coins/${coinId}/market_chart`, {
+  const coinId = await fetchCoinId_(ticker);
+  const geckoData = await fetchCoinGeckoData_(`coins/${coinId}/market_chart`, {
     vs_currency: ticker2,
     days,
     interval
@@ -758,7 +759,7 @@ const fetchCoinId_ = async (ticker) => {
   return coin?.id?.toString();
 };
 
-const getPairMatrixInfo_ = async (tickerOrIdArray, currencyArray, byTicker) => {
+const getPairMatrixInfo_ = async (tickerOrIdArray, currencyArray, byTicker, overrideCurrency) => {
   const coinIdSet = new Set();
   const currencySet = new Set();
   const tickerToId = {};
@@ -780,11 +781,17 @@ const getPairMatrixInfo_ = async (tickerOrIdArray, currencyArray, byTicker) => {
     }
 
     for (let j = 0; j < tickerOrIdCol.length; ++j) {
-      const tickerOrId = (tickerOrIdCol[j] || '').toLowerCase().trim();
-      const currency =
+      const tickerRegex = /[/]/;
+      let tickerOrId = (tickerOrIdCol[j] || '').toLowerCase().trim();
+      let currency =
         (typeof currencyArray !== 'string'
           ? (currencyCol[j] || '').toLowerCase().trim()
           : currencyArray.toLowerCase().trim()) || 'usd';
+      if (tickerRegex.test(tickerOrId)) {
+        const tickerSplitArr = tickerOrId.split(tickerRegex);
+        tickerOrId = tickerSplitArr[0].trim();
+        currency = !overrideCurrency ? tickerSplitArr[1].trim() : currency;
+      }
       if (!tickerOrId) {
         pairMatrix[i].push({});
         continue;
@@ -804,4 +811,40 @@ const getPairMatrixInfo_ = async (tickerOrIdArray, currencyArray, byTicker) => {
     coinIdSet: [...coinIdSet].filter((v) => v),
     currencySet: [...currencySet].filter((v) => v)
   };
+};
+
+const getCoinsMarketsData_ = async (tickerOrIdArray, currency, byTicker, dataMapper, tag) => {
+  console.log('tickerOrIdArray:', tickerOrIdArray);
+  console.log('currency:', currency);
+  console.log('byTicker:', byTicker);
+  console.log('tag:', tag);
+  const { pairMatrix, coinIdSet, currencySet } = await getPairMatrixInfo_(
+    tickerOrIdArray,
+    currency,
+    byTicker,
+    true
+  );
+
+  const cacheId = getStringHash_(JSON.stringify(tickerOrIdArray || []) + currency + tag);
+  const cached = cacheGet_(cacheId);
+  if (cached) {
+    console.log('using cached data....');
+    return JSON.parse(cached);
+  }
+  console.log('fetching data....');
+
+  commonSleep_();
+  const geckoData = await fetchCoinGeckoData_('coins/markets', {
+    ids: [...coinIdSet].join(','),
+    vs_currency: [...currencySet].join(',')
+  });
+  const dict = {};
+  for (const marketData of geckoData) {
+    dict[marketData.id] = dataMapper(marketData);
+  }
+  return pairMatrix.map((pairs) => pairs.map((pair) => (pair.id ? dict[pair.id] : '')));
+};
+
+const numberOrEmptyStr_ = (val) => {
+  return typeof val === 'number' ? val : '';
 };

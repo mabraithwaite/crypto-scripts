@@ -20,7 +20,6 @@ async function fetchData_(fetchOptions) {
     console.log('response code:', res.getResponseCode());
     if (res.getResponseCode() >= 200 && res.getResponseCode() < 300) {
       const content = res.getContentText();
-      console.log('content:', content);
       return content && JSON.parse(content);
     } else if (retryStrategy && retryStrategy(res, attempt)) {
       console.log('retrying...total attempts:', attempt);

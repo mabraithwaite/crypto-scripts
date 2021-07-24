@@ -8,17 +8,17 @@ async function LP_STAKING(address, parameters = []) {
   const hashValue = getStringHash_(JSON.stringify(parameters) + '_' + address);
   const cachedValue = cacheGet_(hashValue);
   if (cachedValue) {
-    console.log('using cached value');
+    console.log('using cached data....');
     return JSON.parse(cachedValue);
   }
 
-  console.log('not using cached value');
   if (parameters.length === 0) {
     return [];
   }
   if (!Array.isArray(parameters[0])) {
     throw "Expected 2D array of key paths. Ex: [['key1','key2'],['key3','key4']]";
   }
+  console.log('fetching data....');
 
   commonSleep_();
   const data = await fetchData_({
