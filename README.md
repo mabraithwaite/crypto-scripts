@@ -1,6 +1,6 @@
 ## Overview
 
-Basically a rewrite of this project https://github.com/Eloise1988/COINGECKO with a few of my own optimizations and extra functionality. I tried to keep the functionality as close as possible. Main benefits here are:
+Basically a rewrite of this project https://github.com/Eloise1988/COINGECKO with a few of my own optimizations and extra functionality. Main benefits here are:
 - More efficient api calls
     - Retry uses a back-off pattern to avoid spamming CoinGecko's api
     - Can block together data extractions to better utilize a single api call
@@ -12,6 +12,7 @@ Basically a rewrite of this project https://github.com/Eloise1988/COINGECKO with
 - Uses [@google/clasp](https://www.npmjs.com/package/@google/clasp) so you can edit locally then deploy all scripts to your sheets
 - Added helpful npm scripts for those not familiar with prettier or clasp
 - Very easy to set up
+- All scripts are in a single workspace and deployed at once
 
 ## Instructions
 1. Install node packages
