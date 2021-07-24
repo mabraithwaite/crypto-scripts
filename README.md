@@ -1,3 +1,18 @@
+## Overview
+
+Basically a rewrite of this project https://github.com/Eloise1988/COINGECKO. I tried to keep the functionality as close as possible. Main benefits here are:
+- More efficient api calls
+    - Retry uses a back-off pattern to avoid spamming CoinGecko's api
+    - Can block together data extractions to better utilize a single api call
+- More consistent function returns (similar functions act the same/more similar)
+- Easier to read/write
+    - Abstract a lot of the logic into helper functions
+    - Formatted (using [prettier](https://www.npmjs.com/package/prettier))
+    - Can use [ESLint](https://www.npmjs.com/package/eslint) plugins in your favorite IDE
+- Uses [@google/clasp](https://www.npmjs.com/package/@google/clasp) so you can edit locally then deploy all scripts to your sheets
+- Added helpful npm scripts for those not familiar with prettier or clasp
+- Very easy to set up
+
 ## Instructions
 1. Install node packages
     ```bash
@@ -17,3 +32,5 @@ Each time you make a change locally, make sure to push the changes with:
 ```
 $ npm run clasp-push
 ```
+
+**NOTE:** Using `clasp push` writes over all of your current scripts with the ones in this project/workspace.
