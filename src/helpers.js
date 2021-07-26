@@ -7,7 +7,15 @@ function retryOnStatusCodes_(...statusCodes) {
 }
 
 async function fetchData_(fetchOptions) {
-  const { url, params, options, retryStrategy } = fetchOptions;
+  const {
+    url,
+    params,
+    options,
+    retryStrategy,
+    advancedParseOptions,
+    parseContent = true
+  } = fetchOptions;
+  const { query, parseOptions, includeFunc, transformFunc } = advancedParseOptions || {};
   const fetchUrlParamStr = params ? mapObjectToUrlParams_(params) : '';
   const fetchUrl = url + (fetchUrlParamStr ? '?' + fetchUrlParamStr : '');
   const urlFetchOptions = { muteHttpExceptions: true, ...options };
@@ -20,7 +28,11 @@ async function fetchData_(fetchOptions) {
     console.log('response code:', res.getResponseCode());
     if (res.getResponseCode() >= 200 && res.getResponseCode() < 300) {
       const content = res.getContentText();
-      return content && JSON.parse(content);
+      return !parseContent && !advancedParseOptions
+        ? content
+        : !advancedParseOptions
+        ? content && JSON.parse(content)
+        : parseJSONObject_(JSON.parse(content), query, parseOptions, includeFunc, transformFunc);
     } else if (retryStrategy && retryStrategy(res, attempt)) {
       console.log('retrying...total attempts:', attempt);
       retry = true;
@@ -68,4 +80,22 @@ function getDataPathItem_(data, paramPath) {
     return undefined;
   }
   return data;
+}
+
+function numberOrEmptyStr_(val) {
+  return typeof val === 'number' ? val : '';
+}
+
+function tryParseNumber_(val) {
+  return typeof val === 'number'
+    ? val
+    : typeof val === 'string' && val.trim() && isFinite(+val)
+    ? +val
+    : val;
+}
+
+function checkInput_(test, message) {
+  if (!test) {
+    throw message;
+  }
 }

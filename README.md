@@ -1,9 +1,13 @@
 ## Overview
 
-Basically a rewrite of this project https://github.com/Eloise1988/COINGECKO with a few of my own optimizations and extra functionality. Main benefits here are:
+Basically a rewrite of these projects with a few of my own optimizations and extra functionality:
+- https://github.com/Eloise1988/COINGECKO
+- https://github.com/Eloise1988/CRYPTOBALANCE
+
+Main benefits here are:
 - More efficient api calls
     - Retry uses a back-off pattern to avoid spamming CoinGecko's api
-    - Can block together data extractions to better utilize a single api call
+    - Can batch together data extractions to better utilize a single api call
 - More consistent function returns (similar functions act the same/more similar)
 - Easier to read/write
     - Abstract a lot of the logic into helper functions

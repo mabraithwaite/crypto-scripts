@@ -470,7 +470,10 @@ async function GECKOHIST(ticker, ticker2, type, date, byTicker = true) {
 
   commonSleep_();
   const coinId = byTicker ? await fetchCoinId_(ticker) : ticker.toLowerCase();
-  const geckoData = await fetchCoinGeckoData_(`coins/${coinId}/history`, { date, localization: 'false' });
+  const geckoData = await fetchCoinGeckoData_(`coins/${coinId}/history`, {
+    date,
+    localization: 'false'
+  });
   const data = geckoData.market_data[dataKey][ticker2].toFixed(4);
   cachePut_(cacheId, JSON.stringify(data), expirationInSeconds);
   return data;
@@ -526,7 +529,7 @@ async function GECKOCHANGEBYNAME(id_coin, ticker2, type, days) {
     return JSON.parse(cached);
   }
   console.log('fetching data....');
-  
+
   commonSleep_();
   const geckoData = await fetchCoinGeckoData_(`coins/${coinId}/market_chart`, {
     vs_currency: ticker2,
@@ -843,8 +846,4 @@ const getCoinsMarketsData_ = async (tickerOrIdArray, currency, byTicker, dataMap
     dict[marketData.id] = dataMapper(marketData);
   }
   return pairMatrix.map((pairs) => pairs.map((pair) => (pair.id ? dict[pair.id] : '')));
-};
-
-const numberOrEmptyStr_ = (val) => {
-  return typeof val === 'number' ? val : '';
 };
