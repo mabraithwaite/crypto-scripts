@@ -717,7 +717,9 @@ async function CRYPTOPOOLPRICE(tokenNameArray, exchangeArray) {
   console.log('fetching data....');
 
   commonSleep_();
-  const cryptoData = await fetchCryptoToolsData_(`POOLPRICE/${exchangeArray}/${tokenNameArray}`);
+  const cryptoData = JSON.parse(
+    await fetchCryptoToolsData_(`POOLPRICE/${exchangeArray}/${tokenNameArray}`)
+  );
   const dict = [];
   for (let i = 0; i < cryptoData.length; i++) {
     if (Object.prototype.hasOwnProperty.call(cryptoData[i], 'PRICE')) {
@@ -770,8 +772,8 @@ async function CRYPTOFARMING(exchangeArray, tickerArray, dataType) {
   console.log('fetching data....');
 
   commonSleep_();
-  const cryptoData = await fetchCryptoToolsData_(
-    `LPOOLS/${exchangeArray}/${tickerArray}/${dataType}`
+  const cryptoData = JSON.parse(
+    await fetchCryptoToolsData_(`LPOOLS/${exchangeArray}/${tickerArray}/${dataType}`)
   );
   const dict = [];
   for (let i = 0; i < cryptoData.length; i++) {
@@ -829,8 +831,8 @@ async function CRYPTODEXPRICE(tokenArray1, tokenArray2, exchangeArray) {
   console.log('fetching data....');
 
   commonSleep_();
-  const cryptoData = await fetchCryptoToolsData_(
-    `DEXPRICE2/${tokenArray1}/${tokenArray2}/${exchangeArray}`
+  const cryptoData = JSON.parse(
+    await fetchCryptoToolsData_(`DEXPRICE2/${tokenArray1}/${tokenArray2}/${exchangeArray}`)
   );
   const dict = [];
   for (let i = 0; i < cryptoData.length; i++) {
@@ -884,8 +886,8 @@ async function CRYPTOLENDING(exchangeArray, tickerArray, sideArray) {
   console.log('fetching data....');
 
   commonSleep_();
-  const cryptoData = await fetchCryptoToolsData_(
-    `LENDING2/${exchangeArray}/${tickerArray}/${sideArray}`
+  const cryptoData = JSON.parse(
+    await fetchCryptoToolsData_(`LENDING2/${exchangeArray}/${tickerArray}/${sideArray}`)
   );
   const dict = [];
   for (let i = 0; i < cryptoData.length; i++) {

@@ -20,6 +20,8 @@ async function fetchData_(fetchOptions) {
   const fetchUrl = url + (fetchUrlParamStr ? '?' + fetchUrlParamStr : '');
   const urlFetchOptions = { muteHttpExceptions: true, ...options };
 
+  console.log('fetchUrl:', fetchUrl);
+
   let retry = true;
   let attempt = 1;
   while (retry) {
