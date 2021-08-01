@@ -561,7 +561,7 @@ async function CRYPTOLP(exchange, pair, type) {
   commonSleep_();
   const lp = tryParseNumber_(await fetchCryptoToolsData_(`LPOOLS/${exchange}/${pair}/${type}`));
   if (typeof lp === 'number') {
-    cachePut_(cacheId, lp);
+    cachePut_(cacheId, JSON.stringify(lp));
   }
   return lp;
 }
