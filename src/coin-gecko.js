@@ -474,7 +474,7 @@ async function GECKOHIST(ticker, ticker2, type, date, byTicker = true) {
     date,
     localization: 'false'
   });
-  const data = geckoData.market_data[dataKey][ticker2].toFixed(4);
+  const data = +geckoData.market_data[dataKey][ticker2].toFixed(4);
   cachePut_(cacheId, JSON.stringify(data));
   return data;
 }
@@ -536,7 +536,7 @@ async function GECKOCHANGEBYNAME(id_coin, ticker2, type, days) {
     days
   });
 
-  const val = (
+  const val = +(
     geckoData[dataKey][geckoData[dataKey].length - 1][1] / geckoData[dataKey][0][1] -
     1
   ).toFixed(4);
@@ -650,7 +650,7 @@ async function GECKOCHANGE(ticker, ticker2, type, days) {
     vs_currency: ticker2,
     days
   });
-  const data = (
+  const data = +(
     geckoData[dataKey][geckoData[dataKey].length - 1][1] / geckoData[dataKey][0][1] -
     1
   ).toFixed(4);
