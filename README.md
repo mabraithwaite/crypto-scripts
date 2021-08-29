@@ -1,12 +1,14 @@
 ## Overview
 
-Basically a rewrite of these projects with a few of my own optimizations and extra functionality:
+Started as a rewrite of these projects with a few of my own optimizations and extra functionality:
 - https://github.com/Eloise1988/COINGECKO
 - https://github.com/Eloise1988/CRYPTOBALANCE
 
+Opted to use CoinMarketCap over CoinGecko because you can get a free api key from CoinMarketCap for more responsive api calls.
+
 Main benefits here are:
 - More efficient api calls
-    - Retry uses a back-off pattern to avoid spamming CoinGecko's api
+    - Retry uses a back-off pattern to avoid spamming the different api
     - Can batch together data extractions to better utilize a single api call
 - More consistent function returns (similar functions act the same/more similar)
 - Easier to read/write
@@ -17,13 +19,16 @@ Main benefits here are:
 - Added helpful npm scripts for those not familiar with prettier or clasp
 - Very easy to set up
 - All scripts are in a single workspace and deployed at once
+- Uses CoinMarketCap for more responsive calls and less throttling
 
 ## Instructions
 1. Install node packages
     ```bash
     $ npm i
     ```
-2. One of two options:
+1. Get a free api key from CoinMarketCap here: https://coinmarketcap.com/api/
+1. Add the api key to `data/constants.js`
+1. One of two options:
     - If you want to create a google spreadsheet with these scripts, run:
         ```bash
         $ npm run clasp-create-spreadsheet 
@@ -42,4 +47,4 @@ $ npm run clasp-push
 
 ## Example
 
-Crypto Portfolio Template: https://docs.google.com/spreadsheets/d/1RGIH_mviUDp0UFDgqLEU_wq_IKdugvkHTJqdK8ZCnuY/edit?usp=sharing
+Crypto Portfolio Template: https://docs.google.com/spreadsheets/d/1FUcBl3vGjXG1h4zgcsU3kg2NnRZJmZKN8-unauMwSNU/edit?usp=sharing
