@@ -101,3 +101,37 @@ function checkInput_(test, message) {
     throw message;
   }
 }
+
+function rotateGrid_(vals) {
+  const rotated = new Array(vals[0].length).fill(0).map(() => new Array(vals.length));
+  for (let i = 0; i < vals.length; ++i) {
+    for (let j = 0; j < vals[i].length; ++j) {
+      rotated[j][i] = vals[i][j];
+    }
+  }
+  return rotated;
+}
+
+function isCellOrRowOrCol_(val) {
+  return isCell_(val) || isRow_(val) || isCol_(val);
+}
+
+function isCell_(val) {
+  return !Array.isArray(val);
+}
+
+function isRow_(val) {
+  return !isCell_(val) && val.length === 1;
+}
+
+function isCol_(val) {
+  return !isCell_(val) && val[0].length === 1;
+}
+
+function flattenGridOrCell_(gridOrCell) {
+  return !Array.isArray(gridOrCell)
+    ? [(gridOrCell + '').trim()]
+    : gridOrCell.length === 1
+    ? gridOrCell[0].map((v) => (v + '').trim())
+    : gridOrCell.map((vArr) => (vArr[0] + '').trim());
+}
