@@ -42,7 +42,7 @@ async function fetchData_(fetchOptions) {
       Utilities.sleep(attempt * 1000);
     } else {
       console.log('throwing response...total attempts:', attempt);
-      throw res;
+      throw new Error(res);
     }
   }
 }

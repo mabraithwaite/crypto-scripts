@@ -48,3 +48,5 @@ $ npm run clasp-push
 ## Example
 
 Crypto Portfolio Template: https://docs.google.com/spreadsheets/d/1FUcBl3vGjXG1h4zgcsU3kg2NnRZJmZKN8-unauMwSNU/edit?usp=sharing
+- Template is calling a sandbox api so returns unrealistic data. You'll need to push the scripts with your new api key for it to work.
+- I've locked all the tabs so people can't edit it. To play around with the template you can click "File" -> "Make a Copy"
